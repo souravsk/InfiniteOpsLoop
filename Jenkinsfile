@@ -11,6 +11,11 @@ pipeline {
                 checkout scm
             }
         }
+         
+        stage('Initialize'){
+        def dockerHome = tool 'myDocker'
+        env.PATH = "${dockerHome}/bin:${env.PATH}"
+        }
 
         stage('Build') {
             steps {
@@ -26,8 +31,6 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    // Make sure Docker is available in the PATH
-                    def dockerPath = tool 'Docker'
 
                     // Retrieve Docker Hub credentials from Jenkins credentials store
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_TOKEN', usernameVariable: 'DOCKERHUB_USERNAME')]) {
