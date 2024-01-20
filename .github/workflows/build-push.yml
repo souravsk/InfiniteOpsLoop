@@ -15,6 +15,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build Docker image
-        run: DOCKER_BUILDKIT=1 docker build -t sovu/findmyshow -f cmd/server/Dockerfile .
+        run: DOCKER_BUILDKIT=1 docker build -t sovu/findmyshow -f .
       - name: Push Docker image
         run: docker push sovu/findmyshow   
