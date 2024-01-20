@@ -13,8 +13,8 @@ pipeline {
         }
          
         stage('Initialize'){
-        def dockerHome = tool 'myDocker'
-        env.PATH = "${dockerHome}/bin:${env.PATH}"
+            def dockerHome = tool 'Docker'
+            env.PATH = "${dockerHome}/bin:${env.PATH}"
         }
 
         stage('Build') {
@@ -35,12 +35,12 @@ pipeline {
                     // Retrieve Docker Hub credentials from Jenkins credentials store
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_TOKEN', usernameVariable: 'DOCKERHUB_USERNAME')]) {
                         // Login to Docker Hub using the retrieved credentials
-                        sh "${dockerPath}/docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_TOKEN} https://registry.hub.docker.com"
+                        sh "${dockerHome}/docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_TOKEN} https://registry.hub.docker.com"
 
                         // Push the Docker image to Docker Hub
-                        sh "${dockerPath}/docker push ${DOCKER_IMAGE_NAME}"
+                        sh "${dockerHome}/docker push ${DOCKER_IMAGE_NAME}"
 
-                        sh "${dockerPath}/docker images"
+                        sh "${dockerHome}/docker images"
                     }
                 }
             }
