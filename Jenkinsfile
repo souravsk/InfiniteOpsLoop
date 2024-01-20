@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = "sovu/findmyshow" // Replace 'your-dockerhub-username' with your Docker Hub username
+        DOCKER_IMAGE_NAME = "findmyshow" // Replace 'your-dockerhub-username' with your Docker Hub username
     }
 
     stages {
@@ -17,6 +17,8 @@ pipeline {
                 script {
                     // Use a Dockerfile in the root of your repository
                     docker.build("${DOCKER_IMAGE_NAME}")
+
+                    sh "docker images"
                 }
             }
         }
@@ -24,13 +26,24 @@ pipeline {
         stage('Push') {
             steps {
                 script {
-                    // Login to Docker Hub using the provided Docker Hub credentials
-                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDS_ID}") {
+                    // Make sure Docker is available in the PATH
+                    def dockerPath = tool 'Docker'
+
+                    // Retrieve Docker Hub credentials from Jenkins credentials store
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_TOKEN', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+                        // Login to Docker Hub using the retrieved credentials
+                        sh "${dockerPath}/docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_TOKEN} https://registry.hub.docker.com"
+
                         // Push the Docker image to Docker Hub
-                        docker.image("${DOCKER_IMAGE_NAME}").push()
+                        sh "${dockerPath}/docker push ${DOCKER_IMAGE_NAME}"
+
+                        sh "${dockerPath}/docker images"
                     }
                 }
             }
         }
+   
     }
 }
+
+
